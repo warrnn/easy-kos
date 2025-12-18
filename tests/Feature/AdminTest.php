@@ -296,9 +296,9 @@ test('Admin gagal mengubah kos yang tidak ada', function () {
 
     actingAs($admin);
 
-    $nonExistentKosId = 9999;
+    $kosID= 9999;
 
-    $response = post(route('admin.form-pemilik.edit', ['kos' => $nonExistentKosId]), [
+    $response = post(route('admin.form-pemilik.edit', ['kos' => $kosID]), [
         'role' => $pemilik->id,
         'name' => 'Kos Tidak Ada',
         'alamat' => 'Jl. Tidak Ada',
@@ -321,9 +321,9 @@ test('Admin gagal menghapus kos yang tidak ada', function () {
 
     actingAs($admin);
 
-    $nonExistentKosId = 9999;
+    $kosID = 9999;
 
-    $response = delete(route('admin.manage-users.kos.delete', ['kos' => $nonExistentKosId]));
+    $response = delete(route('admin.manage-users.kos.delete', ['kos' => $kosID]));
 
     $response->assertRedirect(route('admin.manage-users'))
         ->assertSessionHas('error', 'Kos tidak ditemukan.');
