@@ -14,7 +14,10 @@
     },
     "require-dev": {
         "behat/behat": "^3.29",
+        "behat/mink-browserkit-driver": "^2.3",
+        "cevinio/behat-laravel-extension": "^4.0",
         "fakerphp/faker": "^1.9.1",
+        "friends-of-behat/mink-extension": "^2.7",
         "laravel/pint": "^1.0",
         "laravel/sail": "^1.18",
         "mockery/mockery": "^1.4.4",
@@ -22,7 +25,8 @@
         "pestphp/pest": "^2.36",
         "pestphp/pest-plugin-laravel": "^2.4",
         "phpunit/phpunit": "^10.1",
-        "spatie/laravel-ignition": "^2.0"
+        "spatie/laravel-ignition": "^2.0",
+        "symfony/http-client": "^6.4"
     },
     "autoload": {
         "psr-4": {
