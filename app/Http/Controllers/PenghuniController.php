@@ -27,16 +27,13 @@ class PenghuniController extends Controller
         ]);
     }
 
-    public function showAllKamar()
+    public function showAllKamar($kosId)
     {
-        $kosId = session()->get('kos_id'); // Jika Anda menggunakan session untuk menyimpan ID
-        // dd($kosId);
-        // Ambil data kos berdasarkan ID
-        $kos = Kos::find($kosId);
+        $kos = Kos::findOrFail($kosId);
 
-        $listKamar = Kamar::query()->get();
+        $listKamar = Kamar::where('id_kos', $kosId)->get();
+        $listReview = Review::where('id_kos', $kosId)->get();
 
-        $listReview = Review::where('id_kos', 2)->get();
         return view('penghuni.kos.index', [
             "listKamar" => $listKamar,
             "listKos" => $kos,

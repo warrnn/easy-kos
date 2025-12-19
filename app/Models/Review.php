@@ -20,15 +20,15 @@ class Review extends Model
         'tanggal_review' => 'datetime',
     ];
 
-    // public function pengguna(): BelongsTo
-    // {
-    //     return $this->belongsTo(Pengguna::class, 'id_pengguna');
-    // }
+    public function pengguna(): BelongsTo
+    {
+        return $this->belongsTo(Pengguna::class, 'id_pengguna');
+    }
 
-    // public function kos(): BelongsTo
-    // {
-    //     return $this->belongsTo(Kos::class, 'id_kos');
-    // }
+    public function kos(): BelongsTo
+    {
+        return $this->belongsTo(Kos::class, 'id_kos');
+    }
 
     /**
      * 1. Mengambil cuplikan isi review (Excerpt).
