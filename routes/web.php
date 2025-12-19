@@ -63,7 +63,7 @@ Route::middleware(['role:pemilik'])->group(function () {
 
 Route::middleware(['role:penghuni'])->group(function () {
     Route::get('/penghuni/index', [PenghuniController::class, 'showAllKos'])->name('penghuni.index');
-    Route::get('/penghuni/kos/index', [PenghuniController::class, 'showAllKamar'])->name('penghuni.kos.index');
+    Route::get('/penghuni/kos/index/{kos}', [PenghuniController::class, 'showAllKamar'])->name('penghuni.kos.index');
     Route::get('/penghuni/pemesanan/index', [PenghuniController::class, 'showPemesanan'])->name('penghuni.pemesanan.index');
     Route::get('/kos/{id}', [PenghuniController::class, 'show'])->name('kos.show');
     Route::post('/penghuni/kos/pesan/{kamarId:id}', [PenghuniController::class, 'pesanKamar'])->name('penghuni.kos.pesan');

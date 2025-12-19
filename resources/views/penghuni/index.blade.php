@@ -32,9 +32,8 @@
     @if ($listKos->isNotEmpty())
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
         @foreach($listKos as $kos)
-            <a href="{{ url('/penghuni/kos/index') }}"
-                class="card bg-white shadow-lg rounded-lg overflow-hidden"
-                onclick="saveKosIdAndRedirect(event, '{{ $kos->id }}')">
+            <a href="{{ route('penghuni.kos.index', $kos->id) }}"
+                class="card bg-white shadow-lg rounded-lg overflow-hidden">
                 <!-- Gambar -->
                 <figure class="h-40 bg-gray-300 flex justify-center items-center">
                     <span class="text-lg font-bold text-gray-700">GAMBAR</span>
@@ -58,15 +57,15 @@
 
 @section('library-js')
 <script>
-    function saveKosIdAndRedirect(event, kosId) {
-        event.preventDefault(); // Menghentikan aksi default dari klik (navigasi)
+    // function saveKosIdAndRedirect(event, kosId) {
+    //     event.preventDefault(); // Menghentikan aksi default dari klik (navigasi)
 
-        // Menyimpan ID kos ke sessionStorage
-        sessionStorage.setItem('kos_id', kosId);
+    //     // Menyimpan ID kos ke sessionStorage
+    //     sessionStorage.setItem('kos_id', kosId);
 
-        // Navigasi ke URL setelah ID disimpan
-        window.location.href = '/penghuni/kos/index'; // Ganti URL sesuai kebutuhan
-    }
+    //     // Navigasi ke URL setelah ID disimpan
+    //     window.location.href = '/penghuni/kos/index'; // Ganti URL sesuai kebutuhan
+    // }
 
     document.getElementById('logout-link').addEventListener('click', function(e) {
         e.preventDefault();
