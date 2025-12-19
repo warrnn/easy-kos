@@ -21,15 +21,15 @@ class Kamar extends Model
         'id_kos'
     ];
 
-    public function kos(): BelongsTo
-    {
-        return $this->belongsTo(Kos::class, 'id_kos');
-    }
+    // public function kos(): BelongsTo
+    // {
+    //     return $this->belongsTo(Kos::class, 'id_kos');
+    // }
 
-    public function pesanan(): HasMany
-    {
-        return $this->hasMany(Pesanan::class);
-    }
+    // public function pesanan(): HasMany
+    // {
+    //     return $this->hasMany(Pesanan::class);
+    // }
 
     /**
      * 1. Menghitung total harga berdasarkan durasi bulan.

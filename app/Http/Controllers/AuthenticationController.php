@@ -28,7 +28,6 @@ class AuthenticationController extends Controller
                 'admin' => route('admin.index'),
                 'pemilik' => route('pemilik.index'),
                 'penghuni' => route('penghuni.index'),
-                default => route('authentication.login'),
             };
 
             session(['redirectUrl' => $redirectUrl]);
@@ -68,8 +67,6 @@ class AuthenticationController extends Controller
 
         if ($result) {
             return response()->json(['success' => true]);
-        } else {
-            return response()->json(['success' => false, 'message' => 'User registration failed']);
         }
     }
 

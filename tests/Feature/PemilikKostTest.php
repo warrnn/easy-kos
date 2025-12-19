@@ -4,6 +4,7 @@ use App\Models\Kamar;
 use App\Models\Kos;
 use App\Models\Pengguna;
 use App\Models\Pesanan;
+use App\Models\Role;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\post;
@@ -27,6 +28,80 @@ test('Pemilik kos melakukan login', function () {
         ->assertSessionHas('redirectUrl', route('pemilik.index'));
 
     $this->assertAuthenticatedAs($user);
+});
+
+test('Pemilik kos melihat daftar kos miliknya di dashboard', function () {
+    // 1. SIAPKAN ROLE (Agar tidak dibuat ulang oleh factory)
+    // Kita gunakan firstOrCreate untuk memastikan Role ID 2 tersedia
+    $rolePemilik = Role::firstOrCreate(
+        ['id' => 2],
+        ['nama' => 'pemilik']
+    );
+
+    // 2. Buat User Pemilik UTAMA dengan recycle()
+    // Artinya: "Buat user, tapi untuk relasi role-nya, pakai $rolePemilik yang sudah ada"
+    $user = Pengguna::factory()
+        ->recycle($rolePemilik)
+        ->create();
+
+    // 3. Buat 2 Kos milik user ini
+    $kosMilikUser = Kos::factory()->count(2)->create([
+        'id_pengguna' => $user->id
+    ]);
+
+    // 4. Buat User LAIN (Pengganggu) dengan recycle() juga
+    // User ini juga pemilik, jadi kita recycle role yang sama agar tidak error duplikat ID
+    $otherUser = Pengguna::factory()
+        ->recycle($rolePemilik)
+        ->create();
+
+    $kosOrangLain = Kos::factory()->create([
+        'id_pengguna' => $otherUser->id
+    ]);
+
+    // 5. Jalankan Request & Assertion (Logika tetap sama)
+    actingAs($user)
+        ->get(route('pemilik.index'))
+        ->assertStatus(200)
+        ->assertViewIs('pemilik_kos.index')
+        ->assertViewHas('kos', function ($data) use ($kosMilikUser, $kosOrangLain) {
+            // Validasi jumlah
+            if ($data->count() !== 2) {
+                return false;
+            }
+
+            // Validasi punya sendiri HARUS ada
+            if (!$data->contains('id', $kosMilikUser->first()->id)) {
+                return false;
+            }
+
+            // Validasi punya orang lain JANGAN sampai ada
+            if ($data->contains('id', $kosOrangLain->id)) {
+                return false;
+            }
+
+            return true;
+        })
+        ->assertViewHas('jumlahKos', 2);
+});
+
+test('Pemilik kos melihat dashboard kosong jika belum memiliki kos', function () {
+    // 1. Buat User Pemilik baru (tanpa data kos)
+    $user = Pengguna::factory()->pemilik()->create();
+
+    // 2. Jalankan Request
+    actingAs($user)
+        ->get(route('pemilik.index'))
+        ->assertStatus(200)
+        ->assertViewIs('pemilik_kos.index')
+
+        // 3. Validasi 'kos' harus kosong
+        ->assertViewHas('kos', function ($data) {
+            return $data->isEmpty();
+        })
+
+        // 4. Validasi 'jumlahKos' harus 0
+        ->assertViewHas('jumlahKos', 0);
 });
 
 test('Pemilik kos dapat membuat kos baru', function () {
@@ -231,14 +306,14 @@ test('Pemilik kos dapat memperbarui status pesanan dan kamar otomatis menjadi bo
         'username' => 'pemilik_kos',
         'password' => bcrypt('pemilik123'),
     ]);
-    
+
     // 2. Buat Kos & Kamar milik user tersebut
     $kos = Kos::factory()->create(['id_pengguna' => $user->id]);
-    
+
     // Kamar awalnya 'tersedia'
     $kamar = Kamar::factory()->create([
-        'id_kos' => $kos->id, 
-        'status' => 'ready' 
+        'id_kos' => $kos->id,
+        'status' => 'ready'
     ]);
 
     // 3. Buat Pesanan (Status awal 'pending')
@@ -255,7 +330,7 @@ test('Pemilik kos dapat memperbarui status pesanan dan kamar otomatis menjadi bo
         ->assertRedirect(); // Pastikan redirect back
 
     // 5. Verifikasi Database
-    
+
     // a. Cek status pesanan berubah jadi 'disetujui'
     $this->assertDatabaseHas('pesanan', [
         'id' => $pesanan->id,
