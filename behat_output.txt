@@ -1,0 +1,48 @@
+﻿Feature: Autentikasi User
+
+  Scenario: User membuat akun baru And berhasil registrasi akun # features\authentication.feature:3
+    Given user membuka aplikasi                                 # AuthenticatonContext::steps_impl_user_opens_app()
+    And user pergi ke halaman register                          # AuthenticatonContext::steps_impl_user_goes_to_register()
+    And user mengisi form register                              # AuthenticatonContext::steps_impl_user_fills_register_form()
+    And user menekan tombol register                            # AuthenticatonContext::steps_impl_user_clicks_register()
+    Then user berhasil registrasi akun baru                     # AuthenticatonContext::steps_impl_user_successfully_registered()
+    And data akun user tersimpan di database                    # AuthenticatonContext::steps_impl_user_data_saved_in_database()
+    And user ter-direct ke halaman login                        # AuthenticatonContext::steps_impl_user_redirected_to_login()
+
+  Scenario: User dengan otoritas akun admin melakukan login untuk masuk ke dashboard admin # features\authentication.feature:12
+    When admin membuka aplikasi                                                            # AuthenticatonContext::steps_impl_admin_opens_app()
+    And admin mengisi form login                                                           # AuthenticatonContext::steps_impl_admin_fills_login_form()
+    And admin menekan tombol login                                                         # AuthenticatonContext::steps_impl_admin_clicks_login()
+    Then admin berhasil masuk ke dashboard admin                                           # AuthenticatonContext::steps_impl_admin_successfully_logged_in()
+      Admin was not redirected to admin dashboard. Current URL: http://127.0.0.1:8000/authentication/login (Exception)
+
+  Scenario: User dengan otoritas akun pemilik kos melakukan login untuk masuk ke dashboard pemilik kos # features\authentication.feature:18
+    When pemilik kos membuka aplikasi                                                                  # AuthenticatonContext::steps_impl_owner_opens_app()
+    And pemilik kos mengisi form login                                                                 # AuthenticatonContext::steps_impl_owner_fills_login_form()
+    And pemilik kos menekan tombol login                                                               # AuthenticatonContext::steps_impl_owner_clicks_login()
+    Then pemilik kos berhasil masuk ke dashboard pemilik kos                                           # AuthenticatonContext::steps_impl_owner_successfully_logged_in()
+      Owner was not redirected to owner dashboard. Current URL: http://127.0.0.1:8000/authentication/login (Exception)
+
+  Scenario: User dengan otoritas akun penghuni kos melakukan login untuk masuk ke halaman utama # features\authentication.feature:24
+    When penghuni kos membuka aplikasi                                                          # AuthenticatonContext::steps_impl_tenant_opens_app()
+    And penghuni kos mengisi form login                                                         # AuthenticatonContext::steps_impl_tenant_fills_login_form()
+    And penghuni kos menekan tombol login                                                       # AuthenticatonContext::steps_impl_tenant_clicks_login()
+    Then penghuni kos berhasil masuk ke halaman utama                                           # AuthenticatonContext::steps_impl_tenant_successfully_logged_in()
+      Tenant was not redirected to homepage. Current URL: http://127.0.0.1:8000/authentication/login (Exception)
+
+  Scenario: User login dengan mengisi kredensial yang salah # features\authentication.feature:30
+    When user membuka aplikasi                              # AuthenticatonContext::steps_impl_user_opens_app()
+    And user mengisi form login dengan kredensial salah     # AuthenticatonContext::steps_impl_user_fills_invalid_credentials()
+    And user menekan tombol login                           # AuthenticatonContext::steps_impl_user_clicks_login()
+    Then aplikasi menolak login dari user                   # AuthenticatonContext::steps_impl_app_rejects_login()
+    And user tetap di halaman login                         # AuthenticatonContext::steps_impl_user_stays_on_login_page()
+
+--- Failed scenarios:
+
+    features\authentication.feature:12 (on line 16)
+    features\authentication.feature:18 (on line 22)
+    features\authentication.feature:24 (on line 28)
+
+5 scenarios (2 passed, 3 failed)
+24 steps (21 passed, 3 failed)
+0m7.32s (16.58Mb)
