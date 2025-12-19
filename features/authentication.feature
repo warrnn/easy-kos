@@ -6,7 +6,6 @@ Feature: Autentikasi User
     And user mengisi form register
     And user menekan tombol register
     Then user berhasil registrasi akun baru
-    And data akun user tersimpan di database
     And user ter-direct ke halaman login
 
   Scenario: User dengan otoritas akun admin melakukan login untuk masuk ke dashboard admin

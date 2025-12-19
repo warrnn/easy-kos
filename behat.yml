@@ -2,8 +2,7 @@ default:
   suites:
     default:
       contexts:
-        - FeatureContext
-        - AdminLoginContext
+        - AuthenticatonContext
   extensions:
     Behat\MinkExtension:
       base_url: "http://127.0.0.1:8000"
