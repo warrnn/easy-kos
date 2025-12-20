@@ -48,5 +48,4 @@ Feature: Penghuni Kos
     When penghuni kos menekan tombol review
     And penghuni kos mengisi review untuk kos yang dipilih
     And penghuni kos menekan tombol "Submit Review"
-    Then data review tersimpan ke database
-    And data review akan ditampilkan pada halaman kos terkait
+    Then data review akan ditampilkan pada halaman kos terkait

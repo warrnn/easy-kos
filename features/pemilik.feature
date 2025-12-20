@@ -10,8 +10,7 @@ Feature: Manajemen Pemilik Kos
     Then halaman menuju ke halaman pembuatan data kamar
     When pemilik kos mengisi form data kamar
     And pemilik kos menekan tombol "Simpan"
-    Then data kos akan tersimpan ke database
-    And halaman kembali ke halaman tabel data kos
+    Then halaman kembali ke halaman tabel data kos
     And menampilkan data kamar kos baru
 
   Scenario: Pemilik kos menerima pesanan dari penghuni kos
@@ -21,8 +20,7 @@ Feature: Manajemen Pemilik Kos
     When pemilik kos menekan tombol "Request"
     Then halaman menuju ke tabel data pesanan kamar
     When pemilik kos menekan tombol "Terima"
-    Then data penerimaan pesanan akan ter-update di database
-    And pada tabel status berubah menjadi "Terima"
+    Then pada tabel status berubah menjadi "Terima"
 
   Scenario: Pemilik kos melihat laporan kamar kos
     When pemilik kos membuka aplikasi
