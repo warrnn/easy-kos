@@ -69,17 +69,9 @@
 
         <!-- Room Cards -->
         @if ($listKamar->isNotEmpty())
-        {{-- <!-- Search Bar -->
-        <div class="flex justify-between mb-6 my-6">
-            <div class="form-control w-screen">
-                <div class="input-group">
-                    <input type="text" placeholder="Search kamar..." class="input input-bordered w-full" />
-                </div>
-            </div>
-        </div> --}}
         <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             @foreach($listKamar as $kamar)
-            <div class="card bg-white shadow-lg" data-id-kos="{{ $kamar->id_kos }}">
+            <div class="kamar-card card bg-white shadow-lg" data-id-kos="{{ $kamar->id_kos }}">
                 <figure class="h-48 bg-gray-200 flex items-center justify-center">
                     <span class="text-xl font-bold">GAMBAR KAMAR</span>
                 </figure>

@@ -37,15 +37,15 @@ Feature: Penghuni Kos
     And penghuni kos melakukan login
     Then halaman utama ditampilkan
     When penghuni kos menekan menu "Pemesanan" pada navigation bar
-    Then halaman pemesanan menampilkan data-data pesanan yang dilakukan oleh user yang seAndg login beserta status-nya
+    Then halaman pemesanan menampilkan riwayat pemesanan penghuni
 
   Scenario: Penghuni kos memberikan review pada suatu kos
     When penghuni kos membuka aplikasi
     And penghuni kos melakukan login
     Then halaman utama ditampilkan
     When penghuni kos menekan menu "Pemesanan" pada navigation bar
-    Then halaman akan menampilkan data-data kos yang terdapat tombol action "icon bintang"
+    Then halaman pemesanan menampilkan riwayat pemesanan penghuni
     When penghuni kos menekan tombol review
     And penghuni kos mengisi review untuk kos yang dipilih
     And penghuni kos menekan tombol "Submit Review"
-    Then data review akan ditampilkan pada halaman kos terkait
+    Then data review tersimpan ke database dan muncul notifikasi "Review berhasil ditambahkan!"
