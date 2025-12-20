@@ -104,6 +104,7 @@ test('pesan kamar redirect back jika kamar tidak ditemukan', function () {
         ->assertSessionHas('error', 'Kamar tidak ditemukan!');
 });
 
+// Midtrans test
 test('pesan kamar berhasil dan menghasilkan snap token midtrans', function () {
     $user = createSpecialPenghuni();
     $pemilik = Pengguna::factory()->create(['id_role' => 2]);
@@ -132,6 +133,7 @@ test('pesan kamar berhasil dan menghasilkan snap token midtrans', function () {
     ]);
 });
 
+// Midtrans test
 test('pesan kamar menangani error exception dari midtrans', function () {
     $user = createSpecialPenghuni();
     $pemilik = Pengguna::factory()->create(['id_role' => 2]);
