@@ -9,9 +9,6 @@ use function Pest\Laravel\post;
 
 uses(RefreshDatabase::class);
 
-//
-//  Test function login_form 
-//
 test('Mengakses login page', function () {
     get(route('authentication.login'))
         ->assertStatus(200)
@@ -21,13 +18,10 @@ test('Mengakses login page', function () {
 
 test('User dialihkan ke halaman login saat akses halaman terproteksi', function (string $routeName) {
     get(route($routeName))
-        ->assertRedirect('/'); // Pastikan arahnya ke route awal
+        ->assertRedirect('/'); // Pastikan ke route awal
 })->with(['pemilik.index', 'penghuni.index', 'admin.index']);
 
 
-//
-//  Test function authenticate 
-//
 // login admin
 test('Admin melakukan login', function () {
     $user = Pengguna::factory()->admin()->create([
@@ -99,14 +93,11 @@ test('User gagal login karena credentials salah', function () {
 
     $response->assertStatus(302);
     $response->assertSessionHas('error', 'Username atau password salah.');
-    // ngecek session tidak memiliki user
+    // ngecek session tidak ada user
     $this->assertGuest();
 });
 
 
-//
-//  Test function register_form 
-//
 test('Mengakses register page', function () {
     // buat role karena keperluan di form register
     Role::factory()->pemilik()->create(); // id = 2
@@ -119,9 +110,6 @@ test('Mengakses register page', function () {
 });
 
 
-//
-//  Test function add_user 
-//
 // Pemilik kos membuat akun baru
 test('Pemilik kos melakukan registrasi akun', function () {
     // buat role karena keperluan di form register
@@ -184,9 +172,6 @@ test('Registrasi akun gagal jika password tidak cocok', function () {
     ]);
 });
 
-//
-//  Test function logout 
-//
 test('User bisa melakukan logout', function () {
     $user = Pengguna::factory()->create();
 

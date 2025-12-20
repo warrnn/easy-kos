@@ -6,7 +6,7 @@ use App\Models\Kos;
 use App\Models\Pengguna;
 use App\Models\Pesanan;
 use App\Models\Review;
-use App\Models\Role; // Import Model Role
+use App\Models\Role;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
@@ -15,19 +15,14 @@ use function Pest\Laravel\post;
 
 uses(RefreshDatabase::class);
 
-// --- 1. SETUP GLOBAL: SEEDING ROLE ---
-// Ini solusi untuk error "Foreign Key constraint failed"
-// Kita pastikan Role 1, 2, dan 3 selalu ada sebelum setiap test jalan.
 beforeEach(function () {
     Role::factory()->create(['id' => 1, 'nama' => 'admin']);
     Role::factory()->create(['id' => 2, 'nama' => 'pemilik']);
     Role::factory()->create(['id' => 3, 'nama' => 'penghuni']);
 });
 
-// --- HELPER UNTUK USER ---
 function createSpecialPenghuni()
 {
-    // Sekarang aman membuat user dengan id_role 3 karena Role ID 3 sudah dibuat di beforeEach
     $user = Pengguna::factory()->create(['id_role' => 3]);
     $user->username = (string) $user->id;
     $user->save();
@@ -40,7 +35,7 @@ afterEach(function () {
 
 test('penghuni bisa melihat daftar semua kos', function () {
     $user = createSpecialPenghuni();
-    // Kita buat Kos lengkap dengan pemiliknya (role 2) agar tidak error foreign key juga
+
     $pemilik = Pengguna::factory()->create(['id_role' => 2]);
     Kos::factory()->count(3)->create(['id_pengguna' => $pemilik->id]);
 
@@ -77,13 +72,10 @@ test('penghuni melihat 404 jika melihat kos yang tidak ada', function () {
     $response->assertNotFound();
 });
 
-// --- PERBAIKAN ERROR "NOT NULL constraint failed: kamar.id_kos" ---
 test('pesan kamar redirect ke login jika user belum auth', function () {
-    // Kita harus buat parent (Kos & Pemilik) dulu sebelum buat Kamar
     $pemilik = Pengguna::factory()->create(['id_role' => 2]);
     $kos = Kos::factory()->create(['id_pengguna' => $pemilik->id]);
 
-    // Explicitly set id_kos agar tidak error NOT NULL
     $kamar = Kamar::factory()->create(['id_kos' => $kos->id]);
 
     $response = $this->post(action([PenghuniController::class, 'pesanKamar'], $kamar->id));
@@ -93,18 +85,12 @@ test('pesan kamar redirect ke login jika user belum auth', function () {
 });
 
 test('pesan kamar redirect ke homepage jika user belum login (guest)', function () {
-    // 1. Buat data dummy untuk parameter route
-    // Kita tetap butuh ID kamar untuk generate URL, meskipun user belum login
-    // Pastikan Role & Parent dibuat agar tidak error Foreign Key
     $pemilik = Pengguna::factory()->create(['id_role' => 2]);
     $kos = Kos::factory()->create(['id_pengguna' => $pemilik->id]);
     $kamar = Kamar::factory()->create(['id_kos' => $kos->id]);
 
-    // 2. Lakukan POST request TANPA actingAs()
-    // Ini mensimulasikan user tamu (Guest) yang mengakses endpoint
     $response = post(action([PenghuniController::class, 'pesanKamar'], $kamar->id));
 
-    // 3. Assert Redirect ke '/' (Sesuai kodingan Anda: redirect('/'))
     $response->assertRedirect('/');
 });
 

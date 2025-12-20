@@ -10,11 +10,9 @@ class PesananTest extends TestCase
     /** @test */
     public function is_pending_mengembalikan_true_jika_status_pending()
     {
-        // 1. Arrange
         $pesanan = new Pesanan();
         $pesanan->status_pemesanan = 'pending';
 
-        // 2. Act & Assert
         $this->assertTrue($pesanan->isPending());
         $this->assertFalse($pesanan->isDiterima());
     }
@@ -22,11 +20,9 @@ class PesananTest extends TestCase
     /** @test */
     public function is_diterima_mengembalikan_true_jika_status_diterima()
     {
-        // 1. Arrange
         $pesanan = new Pesanan();
         $pesanan->status_pemesanan = 'diterima';
 
-        // 2. Act & Assert
         $this->assertTrue($pesanan->isDiterima());
         $this->assertFalse($pesanan->isPending());
     }
@@ -34,7 +30,7 @@ class PesananTest extends TestCase
     /** @test */
     public function logic_status_case_insensitive()
     {
-        // Memastikan 'PENDING' (huruf besar) tetap dianggap valid
+        // Memastikan kalo 'PENDING' (huruf besar) tetap valid
         $pesanan = new Pesanan();
         $pesanan->status_pemesanan = 'PENDING';
 
@@ -72,11 +68,11 @@ class PesananTest extends TestCase
         $pesanan->status_pemesanan = 'pending';
         $this->assertTrue($pesanan->bisaDibatalkan());
 
-        // Jika sudah diterima, TIDAK BISA dibatalkan
+        // Jika diterima, GABISA dibatalkan
         $pesanan->status_pemesanan = 'diterima';
         $this->assertFalse($pesanan->bisaDibatalkan());
 
-        // Jika sudah ditolak, TIDAK BISA dibatalkan
+        // Jika ditolak, GABISA dibatalkan
         $pesanan->status_pemesanan = 'ditolak';
         $this->assertFalse($pesanan->bisaDibatalkan());
     }

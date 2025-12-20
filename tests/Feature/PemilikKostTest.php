@@ -31,26 +31,21 @@ test('Pemilik kos melakukan login', function () {
 });
 
 test('Pemilik kos melihat daftar kos miliknya di dashboard', function () {
-    // 1. SIAPKAN ROLE (Agar tidak dibuat ulang oleh factory)
-    // Kita gunakan firstOrCreate untuk memastikan Role ID 2 tersedia
+    // Create & Pastiin Role ID 2 ada
     $rolePemilik = Role::firstOrCreate(
         ['id' => 2],
         ['nama' => 'pemilik']
     );
 
-    // 2. Buat User Pemilik UTAMA dengan recycle()
-    // Artinya: "Buat user, tapi untuk relasi role-nya, pakai $rolePemilik yang sudah ada"
     $user = Pengguna::factory()
         ->recycle($rolePemilik)
         ->create();
 
-    // 3. Buat 2 Kos milik user ini
     $kosMilikUser = Kos::factory()->count(2)->create([
         'id_pengguna' => $user->id
     ]);
 
-    // 4. Buat User LAIN (Pengganggu) dengan recycle() juga
-    // User ini juga pemilik, jadi kita recycle role yang sama agar tidak error duplikat ID
+    // Buat User lain
     $otherUser = Pengguna::factory()
         ->recycle($rolePemilik)
         ->create();
@@ -59,7 +54,6 @@ test('Pemilik kos melihat daftar kos miliknya di dashboard', function () {
         'id_pengguna' => $otherUser->id
     ]);
 
-    // 5. Jalankan Request & Assertion (Logika tetap sama)
     actingAs($user)
         ->get(route('pemilik.index'))
         ->assertStatus(200)
@@ -86,41 +80,41 @@ test('Pemilik kos melihat daftar kos miliknya di dashboard', function () {
 });
 
 test('Pemilik kos melihat dashboard kosong jika belum memiliki kos', function () {
-    // 1. Buat User Pemilik baru (tanpa data kos)
+    // Buat User Pemilik baru (tanpa data kos)
     $user = Pengguna::factory()->pemilik()->create();
 
-    // 2. Jalankan Request
+    // Jalankan Request
     actingAs($user)
         ->get(route('pemilik.index'))
         ->assertStatus(200)
         ->assertViewIs('pemilik_kos.index')
 
-        // 3. Validasi 'kos' harus kosong
+        // Validasi 'kos' harus kosong
         ->assertViewHas('kos', function ($data) {
             return $data->isEmpty();
         })
 
-        // 4. Validasi 'jumlahKos' harus 0
+        // Validasi 'jumlahKos' harus 0
         ->assertViewHas('jumlahKos', 0);
 });
 
 test('Pemilik kos dapat membuat kos baru', function () {
-    // 1. Buat user pemilik
+    // Buat user pemilik
     $user = Pengguna::factory()->pemilik()->create();
 
-    // 2. Data yang akan dikirim
+    // Data yang akan dikirim
     $kosData = [
         'name' => 'Kos Sejahtera',
         'alamat' => 'Jl. Mawar No. 123, Jakarta',
     ];
 
-    // 3. Lakukan request POST sebagai user tersebut
+    // Lakukan request POST sebagai user tersebut
     actingAs($user)
         ->post(route('kos.add-kos'), $kosData)
         ->assertRedirect(route('pemilik.index')) // Pastikan redirect benar
         ->assertSessionHas('success', 'Kos berhasil dibuat!'); // Pastikan pesan sukses muncul
 
-    // 4. Verifikasi data masuk ke database
+    // Verifikasi data masuk ke database
     $this->assertDatabaseHas('kos', [
         'name' => 'Kos Sejahtera',
         'alamat' => 'Jl. Mawar No. 123, Jakarta',
@@ -129,10 +123,10 @@ test('Pemilik kos dapat membuat kos baru', function () {
 });
 
 test('Pemilik kos gagal membuat kos jika form tidak valid', function () {
-    // 1. Buat user pemilik
+    // Buat user pemilik
     $user = Pengguna::factory()->pemilik()->create();
 
-    // 2. Kirim data kosong
+    // Kirim data kosong
     actingAs($user)
         ->post(route('kos.add-kos'), [
             'name' => '',
@@ -140,7 +134,7 @@ test('Pemilik kos gagal membuat kos jika form tidak valid', function () {
         ])
         ->assertSessionHasErrors(['name', 'alamat']); // Pastikan error validasi muncul di session
 
-    // 3. Pastikan tidak ada data kosong yang masuk database
+    // Pastikan tidak ada data kosong yang masuk database
     $this->assertDatabaseMissing('kos', [
         'id_pengguna' => $user->id,
     ]);
@@ -176,13 +170,13 @@ test('Pemilik kos melihat data pemesanan penghuni', function () {
 });
 
 test('Pemilik kos melihat halaman laporan dengan data miliknya', function () {
-    // 1. Buat User Pemilik
+    // Buat User Pemilik
     $user = Pengguna::factory()->pemilik()->create([
         'username' => 'pemilik_kos',
         'password' => bcrypt('pemilik123'),
     ]);
 
-    // 2. Buat Data Milik User ini (Kos & Kamar)
+    // Buat Data Milik User ini (Kos & Kamar)
     $kosMilikUser = Kos::factory()->create([
         'id_pengguna' => $user->id
     ]);
@@ -191,7 +185,7 @@ test('Pemilik kos melihat halaman laporan dengan data miliknya', function () {
         'id_kos' => $kosMilikUser->id
     ]);
 
-    // 3. Jalankan Request & Validasi
+    // Jalankan Request & Validasi
     actingAs($user)
         ->get(route('pemilik.laporan.index'))
         ->assertStatus(200)
@@ -219,15 +213,15 @@ test('Pemilik kos melihat halaman laporan dengan data miliknya', function () {
 });
 
 test('Pemilik kos dapat melihat halaman tambah kamar jika sudah memiliki kos', function () {
-    // 1. Buat user pemilik
+    // Buat user pemilik
     $user = Pengguna::factory()->pemilik()->create();
 
-    // 2. Buat kos milik user tersebut
+    // Buat kos milik user tersebut
     $kos = Kos::factory()->create([
         'id_pengguna' => $user->id
     ]);
 
-    // 3. Jalankan request
+    // Jalankan request
     actingAs($user)
         ->get(route('pemilik.laporan.kamar.index'))
         ->assertStatus(200) // Pastikan sukses (OK)
@@ -239,10 +233,10 @@ test('Pemilik kos dapat melihat halaman tambah kamar jika sudah memiliki kos', f
 });
 
 test('Pemilik kos dialihkan kembali jika belum memiliki kos saat akses tambah kamar', function () {
-    // 1. Buat user pemilik TANPA kos
+    // Buat user pemilik TANPA kos
     $user = Pengguna::factory()->pemilik()->create();
 
-    // 2. Simulasikan user datang dari halaman dashboard (untuk tes redirect back)
+    // Simulasikan user datang dari halaman dashboard (untuk tes redirect back)
     $previousUrl = route('pemilik.index'); // Atau URL lain yang valid
 
     actingAs($user)
@@ -253,13 +247,13 @@ test('Pemilik kos dialihkan kembali jika belum memiliki kos saat akses tambah ka
 });
 
 test('Pemilik kos dapat menyimpan data kamar baru dengan valid', function () {
-    // 1. Buat User & Kos
+    // Buat User & Kos
     $user = Pengguna::factory()->pemilik()->create();
     $kos = Kos::factory()->create([
         'id_pengguna' => $user->id
     ]);
 
-    // 2. Data Kamar yang akan dikirim
+    // Data Kamar yang akan dikirim
     $inputData = [
         'name' => 'Kamar Anggrek 01',
         'status' => 'Tersedia',
@@ -267,13 +261,13 @@ test('Pemilik kos dapat menyimpan data kamar baru dengan valid', function () {
         'deskripsi' => 'Kamar mandi dalam dan AC',
     ];
 
-    // 3. Eksekusi Request
+    // Eksekusi Request
     actingAs($user)
         ->post(route('pemilik.laporan.kamar.store', $kos->id), $inputData)
         ->assertRedirect() // Pastikan redirect back (302)
         ->assertSessionHas('success', 'Kamar berhasil disimpan!');
 
-    // 4. Verifikasi Database
+    // Verifikasi Database
     $this->assertDatabaseHas('kamar', [
         'name' => 'Kamar Anggrek 01',
         'id_kos' => $kos->id, // Pastikan terhubung ke kos yang benar
@@ -282,11 +276,11 @@ test('Pemilik kos dapat menyimpan data kamar baru dengan valid', function () {
 });
 
 test('Pemilik kos gagal menyimpan kamar jika validasi error', function () {
-    // 1. Buat User & Kos
+    // Buat User & Kos
     $user = Pengguna::factory()->pemilik()->create();
     $kos = Kos::factory()->create(['id_pengguna' => $user->id]);
 
-    // 2. Kirim data kosong/tidak valid
+    // Kirim data kosong/tidak valid
     actingAs($user)
         ->post(route('pemilik.laporan.kamar.store', $kos->id), [
             'name' => '', // Kosong (Error)
@@ -294,20 +288,20 @@ test('Pemilik kos gagal menyimpan kamar jika validasi error', function () {
         ])
         ->assertSessionHasErrors(['name', 'harga', 'status', 'deskripsi']);
 
-    // 3. Pastikan tidak ada data masuk ke database
+    // Pastikan tidak ada data masuk ke database
     $this->assertDatabaseMissing('kamar', [
         'id_kos' => $kos->id,
     ]);
 });
 
 test('Pemilik kos dapat memperbarui status pesanan dan kamar otomatis menjadi booked', function () {
-    // 1. Buat User Pemilik
+    // Buat User Pemilik
     $user = Pengguna::factory()->pemilik()->create([
         'username' => 'pemilik_kos',
         'password' => bcrypt('pemilik123'),
     ]);
 
-    // 2. Buat Kos & Kamar milik user tersebut
+    // Buat Kos & Kamar milik user tersebut
     $kos = Kos::factory()->create(['id_pengguna' => $user->id]);
 
     // Kamar awalnya 'tersedia'
@@ -316,28 +310,26 @@ test('Pemilik kos dapat memperbarui status pesanan dan kamar otomatis menjadi bo
         'status' => 'ready'
     ]);
 
-    // 3. Buat Pesanan (Status awal 'pending')
+    // Buat Pesanan (Status awal 'pending')
     $pesanan = Pesanan::factory()->create([
         'id_kamar' => $kamar->id,
         'id_pengguna' => $user->id
     ]);
 
-    // 4. Jalankan Request Update
+    // Jalankan Request Update
     actingAs($user)
         ->put(route('pemilik_kos.request.updateStatus', $pesanan->id), [
             'status' => 'Terima' // Input status baru
         ])
         ->assertRedirect(); // Pastikan redirect back
 
-    // 5. Verifikasi Database
-
-    // a. Cek status pesanan berubah jadi 'disetujui'
+    // Cek status pesanan berubah jadi 'Terima'
     $this->assertDatabaseHas('pesanan', [
         'id' => $pesanan->id,
         'status_pemesanan' => 'Terima'
     ]);
 
-    // b. Cek status kamar berubah jadi 'booked' (Sesuai logika controller)
+    // Cek status kamar berubah jadi 'booked' (Sesuai logika controller)
     $this->assertDatabaseHas('kamar', [
         'id' => $kamar->id,
         'status' => 'booked'
