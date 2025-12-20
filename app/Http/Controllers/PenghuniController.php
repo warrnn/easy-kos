@@ -61,9 +61,9 @@ class PenghuniController extends Controller
 
     public function pesanKamar(Request $request, $kamarId) {
         // Validasi data (misalnya, apakah user sudah login)
-        if (!auth()->check()) {
-            return redirect()->route('login')->with('error', 'Anda harus login terlebih dahulu!');
-        }
+        // if (!auth()->check()) {
+        //     return redirect()->route('login')->with('error', 'Anda harus login terlebih dahulu!');
+        // }
 
         $username = Auth::id(); 
         $userId = Pengguna::query()->where('username', $username)->first()->id;

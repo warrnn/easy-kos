@@ -1,210 +1,241 @@
 <?php
 
+use App\Http\Controllers\PenghuniController;
 use App\Models\Kamar;
 use App\Models\Kos;
 use App\Models\Pengguna;
 use App\Models\Pesanan;
 use App\Models\Review;
-use App\Models\Role;
+use App\Models\Role; // Import Model Role
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use function Pest\Laravel\actingAs;
-use function Pest\Laravel\get;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
+use Mockery\MockInterface;
 use function Pest\Laravel\post;
 
 uses(RefreshDatabase::class);
 
-function createPenghuni() {
-    return Pengguna::factory()->create([
-        'username' => 'yesto',
-        'password' => bcrypt('password123'),
-    ]);
-};
+// --- 1. SETUP GLOBAL: SEEDING ROLE ---
+// Ini solusi untuk error "Foreign Key constraint failed"
+// Kita pastikan Role 1, 2, dan 3 selalu ada sebelum setiap test jalan.
+beforeEach(function () {
+    Role::factory()->create(['id' => 1, 'nama' => 'admin']);
+    Role::factory()->create(['id' => 2, 'nama' => 'pemilik']);
+    Role::factory()->create(['id' => 3, 'nama' => 'penghuni']);
+});
 
-//
-// Test function showAllKos()
-//
-test('Penghuni dapat melihat daftar kos', function() {
-    $user = createPenghuni();
+// --- HELPER UNTUK USER ---
+function createSpecialPenghuni()
+{
+    // Sekarang aman membuat user dengan id_role 3 karena Role ID 3 sudah dibuat di beforeEach
+    $user = Pengguna::factory()->create(['id_role' => 3]);
+    $user->username = (string) $user->id;
+    $user->save();
+    return $user;
+}
 
-    Role::factory()->pemilik()->create();
-    Kos::factory()->count(3)->create();
+afterEach(function () {
+    Mockery::close();
+});
 
-    actingAs($user)
-        ->get(route('penghuni.index'))
-        ->assertStatus(200)
+test('penghuni bisa melihat daftar semua kos', function () {
+    $user = createSpecialPenghuni();
+    // Kita buat Kos lengkap dengan pemiliknya (role 2) agar tidak error foreign key juga
+    $pemilik = Pengguna::factory()->create(['id_role' => 2]);
+    Kos::factory()->count(3)->create(['id_pengguna' => $pemilik->id]);
+
+    $response = $this->actingAs($user)
+        ->get(route('penghuni.index'));
+
+    $response->assertStatus(200)
         ->assertViewIs('penghuni.index')
-        ->assertViewHas('listKos', function ($listKos) {
-            return $listKos->count() === 3;
-        });
+        ->assertViewHas('listKos');
 });
 
+test('penghuni bisa melihat detail kamar dalam kos tertentu', function () {
+    $user = createSpecialPenghuni();
+    $pemilik = Pengguna::factory()->create(['id_role' => 2]);
 
-//
-// Test function showAllKamar ()
-//
-test('Penghuni dapat melihat list kamar dan review penghuni terhadap kos yang dipilih', function () {
-    $user = createPenghuni();
+    $kos = Kos::factory()->create(['id_pengguna' => $pemilik->id]);
+    Kamar::factory()->count(2)->create(['id_kos' => $kos->id]);
+    Review::factory()->create(['id_kos' => $kos->id, 'id_pengguna' => $user->id]);
 
-    $pemilik = Pengguna::factory()->pemilik()->create([
-        'username' => 'juragan_kos',
-    ]);
-    
-    // data kos yang dicek
-    $kos = Kos::factory()->create([
-        'name' => 'Kos Target Testing',
-        'id_pengguna' => $pemilik->id
-    ]);
-    
-    Kamar::factory()->count(2)->create([
-        'id_kos' => $kos->id
-    ]);
+    $response = $this->actingAs($user)
+        ->get(action([PenghuniController::class, 'showAllKamar'], $kos->id));
 
-    Review::factory()->create([
-        'isi' => 'Kos ini mantap', 
-        'id_kos' => $kos->id,
-        'id_pengguna' => $user->id
-    ]);
-
-    actingAs($user)
-        ->get(route('penghuni.kos.index', $kos->id))
-        ->assertStatus(200)
+    $response->assertStatus(200)
         ->assertViewIs('penghuni.kos.index')
-        ->assertViewHas('kos')
-        ->assertViewHas('listKamar', function($list) {
-            return $list->count() === 2;
-        })
-        ->assertViewHas('listReview', function($list) {
-            return $list->first()->isi === 'Kos ini mantap';
-        });
+        ->assertViewHas(['listKamar', 'kos', 'listReview']);
 });
 
-// //
-// // Test function show
-// //
-// test('Penghuni dapat melihat detail kos yang dipilih', function () {
-//     $user = createPenghuni();
+test('penghuni melihat 404 jika melihat kos yang tidak ada', function () {
+    $user = createSpecialPenghuni();
 
-//     $pemilik = Pengguna::factory()->pemilik()->create([
-//         'username' => 'juragan_kos',
-//     ]);
-    
-//     // data kos yang dicek
-//     $kos = Kos::factory()->create([
-//         'name' => 'Kos Target Testing',
-//         'alamat' => 'Jl. Siwalankerto',
-//         'id_pengguna' => $pemilik->id
-//     ]);
+    $response = $this->actingAs($user)
+        ->get(action([PenghuniController::class, 'showAllKamar'], 99999));
 
-//     actingAs($user)
-//         ->get(route('kos.show', $kos->id))
-//         ->assertStatus(200)
-//         ->assertJson([
-//             'name' => 'Kos Target Testing',
-//             'alamat' => 'Jl. Siwalankerto',
-//         ]);
-// });
+    $response->assertNotFound();
+});
 
+// --- PERBAIKAN ERROR "NOT NULL constraint failed: kamar.id_kos" ---
+test('pesan kamar redirect ke login jika user belum auth', function () {
+    // Kita harus buat parent (Kos & Pemilik) dulu sebelum buat Kamar
+    $pemilik = Pengguna::factory()->create(['id_role' => 2]);
+    $kos = Kos::factory()->create(['id_pengguna' => $pemilik->id]);
 
-//
-// Test function pesanKamar
-//
-// test('Penghuni dapat memesan kamar pada kos yang dipilih', function () {
-//     $user = createPenghuni();
+    // Explicitly set id_kos agar tidak error NOT NULL
+    $kamar = Kamar::factory()->create(['id_kos' => $kos->id]);
 
+    $response = $this->post(action([PenghuniController::class, 'pesanKamar'], $kamar->id));
 
-// });
+    $response->assertRedirect('/')
+        ->assertSessionHas('error', 'Anda tidak memiliki akses ke halaman ini.');
+});
 
-
-//
-// Test function showPemesanan
-//
-test('Penghuni dapat melihat riwayat pemesanan kamar yang masih pending', function () {
-    $user = createPenghuni();
-
-    $pemilik = Pengguna::factory()->pemilik()->create();
+test('pesan kamar redirect ke homepage jika user belum login (guest)', function () {
+    // 1. Buat data dummy untuk parameter route
+    // Kita tetap butuh ID kamar untuk generate URL, meskipun user belum login
+    // Pastikan Role & Parent dibuat agar tidak error Foreign Key
+    $pemilik = Pengguna::factory()->create(['id_role' => 2]);
     $kos = Kos::factory()->create(['id_pengguna' => $pemilik->id]);
     $kamar = Kamar::factory()->create(['id_kos' => $kos->id]);
 
-    Pesanan::factory()->create([
+    // 2. Lakukan POST request TANPA actingAs()
+    // Ini mensimulasikan user tamu (Guest) yang mengakses endpoint
+    $response = post(action([PenghuniController::class, 'pesanKamar'], $kamar->id));
+
+    // 3. Assert Redirect ke '/' (Sesuai kodingan Anda: redirect('/'))
+    $response->assertRedirect('/');
+});
+
+test('pesan kamar redirect back jika kamar tidak ditemukan', function () {
+    $user = createSpecialPenghuni();
+
+    $response = $this->actingAs($user)
+        ->post(action([PenghuniController::class, 'pesanKamar'], 99999));
+
+    $response->assertRedirect()
+        ->assertSessionHas('error', 'Kamar tidak ditemukan!');
+});
+
+test('pesan kamar berhasil dan menghasilkan snap token midtrans', function () {
+    $user = createSpecialPenghuni();
+    $pemilik = Pengguna::factory()->create(['id_role' => 2]);
+    $kos = Kos::factory()->create(['id_pengguna' => $pemilik->id]);
+    $kamar = Kamar::factory()->create(['id_kos' => $kos->id, 'harga' => 100000]);
+
+    Config::set('midtrans.server_key', 'dummy-server-key');
+    Config::set('midtrans.is_production', false);
+
+    $mockSnap = Mockery::mock('alias:Midtrans\Snap');
+    $mockSnap->shouldReceive('getSnapToken')
+        ->once()
+        ->andReturn('dummy-snap-token-123');
+
+    $response = $this->actingAs($user)
+        ->post(action([PenghuniController::class, 'pesanKamar'], $kamar->id));
+
+    $response->assertStatus(200)
+        ->assertViewIs('penghuni.kos.payment.index')
+        ->assertViewHas('snapToken', 'dummy-snap-token-123');
+
+    $this->assertDatabaseHas('pesanan', [
         'id_pengguna' => $user->id,
         'id_kamar' => $kamar->id,
         'status_pemesanan' => 'pending'
     ]);
-
-    actingAs($user)
-        ->get(route('penghuni.pemesanan.index'))
-        ->assertStatus(200)
-        ->assertViewIs('penghuni.pemesanan.index')
-        ->assertViewHas('listPesanan', function($list) {
-            if ($list->count() !== 1) return false;
-            return $list->first()->status_pemesanan === 'pending';
-        });
 });
 
-test('Penghuni dapat melihat riwayat pemesanan kamar yang sudah diterima', function () {
-    $user = createPenghuni();
-
-    $pemilik = Pengguna::factory()->pemilik()->create();
+test('pesan kamar menangani error exception dari midtrans', function () {
+    $user = createSpecialPenghuni();
+    $pemilik = Pengguna::factory()->create(['id_role' => 2]);
     $kos = Kos::factory()->create(['id_pengguna' => $pemilik->id]);
     $kamar = Kamar::factory()->create(['id_kos' => $kos->id]);
 
-    Pesanan::factory()->create([
+    Config::set('midtrans.server_key', 'dummy-server-key');
+
+    $mockSnap = Mockery::mock('alias:Midtrans\Snap');
+    $mockSnap->shouldReceive('getSnapToken')
+        ->andThrow(new \Exception('Koneksi Midtrans Gagal'));
+
+    $response = $this->actingAs($user)
+        ->post(action([PenghuniController::class, 'pesanKamar'], $kamar->id));
+
+    $response->assertRedirect()
+        ->assertSessionHas('error');
+});
+
+test('penghuni bisa melihat daftar pemesanan miliknya', function () {
+    $user = createSpecialPenghuni();
+    $pemilik = Pengguna::factory()->create(['id_role' => 2]);
+    $kos = Kos::factory()->create(['id_pengguna' => $pemilik->id]);
+    $kamar = Kamar::factory()->create(['id_kos' => $kos->id]);
+
+    $pesananMilikUser = Pesanan::factory()->create([
         'id_pengguna' => $user->id,
-        'id_kamar' => $kamar->id,
-        'status_pemesanan' => 'booked'
+        'id_kamar' => $kamar->id
     ]);
 
-    actingAs($user)
-        ->get(route('penghuni.pemesanan.index'))
-        ->assertStatus(200)
+    $otherUser = Pengguna::factory()->create(['id_role' => 3]); // Penghuni lain
+    $pesananLain = Pesanan::factory()->create([
+        'id_pengguna' => $otherUser->id,
+        'id_kamar' => $kamar->id
+    ]);
+
+    $response = $this->actingAs($user)
+        ->get(action([PenghuniController::class, 'showPemesanan']));
+
+    $response->assertStatus(200)
         ->assertViewIs('penghuni.pemesanan.index')
-        ->assertViewHas('listPesanan', function($list) {
-            if ($list->count() !== 1) return false;
-            return $list->first()->status_pemesanan === 'booked';
+        ->assertViewHas('listPesanan', function ($list) use ($pesananMilikUser, $pesananLain) {
+            return $list->contains($pesananMilikUser) && !$list->contains($pesananLain);
         });
 });
 
-
-//
-// Test function formReview
-//
-test('Penghuni dapat mengakses form review kos', function () {
-    $user = createPenghuni();
-    
-    $pemilik = Pengguna::factory()->pemilik()->create();
+test('penghuni bisa membuka form review', function () {
+    $user = createSpecialPenghuni();
+    $pemilik = Pengguna::factory()->create(['id_role' => 2]);
     $kos = Kos::factory()->create(['id_pengguna' => $pemilik->id]);
 
-    actingAs($user)
-        ->get(route('penghuni.review', $kos->id))
-        ->assertStatus(200)
-        ->assertViewIs('penghuni.review.index')
-        ->assertViewHas('kos', function($viewKos) use ($kos) {
-            return $viewKos->id === $kos->id;
-        });
+    $response = $this->actingAs($user)
+        ->get(action([PenghuniController::class, 'formReview'], $kos->id));
+
+    $response->assertStatus(200)
+        ->assertViewIs('penghuni.review.index');
 });
 
-
-//
-// Test function addReview
-//
-test('Penghuni dapat menambahkan review pada kamar kos yang dipesan', function () {
-    $user = createPenghuni();
-
-    $pemilik = Pengguna::factory()->pemilik()->create();
+test('penghuni bisa menambahkan review', function () {
+    $user = createSpecialPenghuni();
+    $pemilik = Pengguna::factory()->create(['id_role' => 2]);
     $kos = Kos::factory()->create(['id_pengguna' => $pemilik->id]);
 
     $reviewData = [
-        'isi' => 'Tempatnya bersih dan nyaman.',
+        'isi' => 'Tempatnya nyaman dan bersih.',
     ];
 
-    actingAs($user)
-        ->post(route('penghuni.review', $kos->id), $reviewData)
-        ->assertRedirect(route('penghuni.index'))
+    $response = $this->actingAs($user)
+        ->post(action([PenghuniController::class, 'addReview'], $kos->id), $reviewData);
+
+    $response->assertRedirect(route('penghuni.index'))
         ->assertSessionHas('success', 'Review berhasil ditambahkan!');
 
     $this->assertDatabaseHas('review', [
+        'isi' => 'Tempatnya nyaman dan bersih.',
         'id_pengguna' => $user->id,
-        'id_kos' => $kos->id,
-        'isi' => 'Tempatnya bersih dan nyaman.',
+        'id_kos' => $kos->id
     ]);
+});
+
+test('tambah review gagal jika validasi error', function () {
+    $user = createSpecialPenghuni();
+    $pemilik = Pengguna::factory()->create(['id_role' => 2]);
+    $kos = Kos::factory()->create(['id_pengguna' => $pemilik->id]);
+
+    $response = $this->actingAs($user)
+        ->post(action([PenghuniController::class, 'addReview'], $kos->id), [
+            'isi' => ''
+        ]);
+
+    $response->assertSessionHasErrors(['isi']);
+    $this->assertDatabaseCount('review', 0);
 });

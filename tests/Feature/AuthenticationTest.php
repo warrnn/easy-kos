@@ -19,6 +19,12 @@ test('Mengakses login page', function () {
 });
 
 
+test('User dialihkan ke halaman login saat akses halaman terproteksi', function (string $routeName) {
+    get(route($routeName))
+        ->assertRedirect('/'); // Pastikan arahnya ke route awal
+})->with(['pemilik.index', 'penghuni.index', 'admin.index']);
+
+
 //
 //  Test function authenticate 
 //
@@ -91,7 +97,7 @@ test('User gagal login karena credentials salah', function () {
         'password' => 'password456',
     ]);
 
-    $response->assertStatus(302); 
+    $response->assertStatus(302);
     $response->assertSessionHas('error', 'Username atau password salah.');
     // ngecek session tidak memiliki user
     $this->assertGuest();
@@ -109,7 +115,7 @@ test('Mengakses register page', function () {
     get(route('authentication.register'))
         ->assertStatus(200)
         ->assertViewIs('authentication.register.index')
-        ->assertViewHas('roles'); 
+        ->assertViewHas('roles');
 });
 
 
@@ -167,12 +173,12 @@ test('Registrasi akun gagal jika password tidak cocok', function () {
     $response = post('/authentication/register', [
         'username' => 'user_gagal',
         'password' => 'rahasia123',
-        'password_confirmation' => 'rahasia_beda', 
-        'role' => 3, 
+        'password_confirmation' => 'rahasia_beda',
+        'role' => 3,
     ]);
 
     $response->assertSessionHasErrors(['password']);
-    
+
     $this->assertDatabaseMissing('pengguna', [
         'username' => 'user_gagal',
     ]);
@@ -189,6 +195,6 @@ test('User bisa melakukan logout', function () {
 
     $response->assertRedirect(route('authentication.login'))
         ->assertSessionHas('success', 'Logout berhasil!');
-    
+
     $this->assertGuest();
 });
