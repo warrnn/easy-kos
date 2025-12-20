@@ -36,28 +36,28 @@ class PenghuniController extends Controller
 
         return view('penghuni.kos.index', [
             "listKamar" => $listKamar,
-            "listKos" => $kos,
+            "kos" => $kos,
             "listReview" => $listReview,
         ]);
     }
 
-    public function show($id)
-    {
-        // Ambil data kos berdasarkan ID
-        $kos = Kos::find($id);
+    // public function show($id)
+    // {
+    //     // Ambil data kos berdasarkan ID
+    //     $kos = Kos::find($id);
 
-        // Cek apakah kos ditemukan
-        if ($kos) {
-            return response()->json([
-                'name' => $kos->name,
-                'contact_person' => $kos->contact_person,
-                'alamat' => $kos->alamat,
-                'catatan' => $kos->catatan,
-            ]);
-        } else {
-            return response()->json(['error' => 'Kos not found'], 404);
-        }
-    }
+    //     // Cek apakah kos ditemukan
+    //     if ($kos) {
+    //         return response()->json([
+    //             'name' => $kos->name,
+    //             'contact_person' => $kos->contact_person,
+    //             'alamat' => $kos->alamat,
+    //             'catatan' => $kos->catatan,
+    //         ]);
+    //     } else {
+    //         return response()->json(['error' => 'Kos not found'], 404);
+    //     }
+    // }
 
     public function pesanKamar(Request $request, $kamarId) {
         // Validasi data (misalnya, apakah user sudah login)

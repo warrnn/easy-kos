@@ -69,7 +69,7 @@ test('Penghuni dapat melihat list kamar dan review penghuni terhadap kos yang di
         ->get(route('penghuni.kos.index', $kos->id))
         ->assertStatus(200)
         ->assertViewIs('penghuni.kos.index')
-        ->assertViewHas('listKos')
+        ->assertViewHas('kos')
         ->assertViewHas('listKamar', function($list) {
             return $list->count() === 2;
         })
@@ -78,31 +78,31 @@ test('Penghuni dapat melihat list kamar dan review penghuni terhadap kos yang di
         });
 });
 
-//
-// Test function show
-//
-test('Penghuni dapat melihat detail kos yang dipilih', function () {
-    $user = createPenghuni();
+// //
+// // Test function show
+// //
+// test('Penghuni dapat melihat detail kos yang dipilih', function () {
+//     $user = createPenghuni();
 
-    $pemilik = Pengguna::factory()->pemilik()->create([
-        'username' => 'juragan_kos',
-    ]);
+//     $pemilik = Pengguna::factory()->pemilik()->create([
+//         'username' => 'juragan_kos',
+//     ]);
     
-    // data kos yang dicek
-    $kos = Kos::factory()->create([
-        'name' => 'Kos Target Testing',
-        'alamat' => 'Jl. Siwalankerto',
-        'id_pengguna' => $pemilik->id
-    ]);
+//     // data kos yang dicek
+//     $kos = Kos::factory()->create([
+//         'name' => 'Kos Target Testing',
+//         'alamat' => 'Jl. Siwalankerto',
+//         'id_pengguna' => $pemilik->id
+//     ]);
 
-    actingAs($user)
-        ->get(route('kos.show', $kos->id))
-        ->assertStatus(200)
-        ->assertJson([
-            'name' => 'Kos Target Testing',
-            'alamat' => 'Jl. Siwalankerto',
-        ]);
-});
+//     actingAs($user)
+//         ->get(route('kos.show', $kos->id))
+//         ->assertStatus(200)
+//         ->assertJson([
+//             'name' => 'Kos Target Testing',
+//             'alamat' => 'Jl. Siwalankerto',
+//         ]);
+// });
 
 
 //

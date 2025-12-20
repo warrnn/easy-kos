@@ -17,13 +17,14 @@
 
     <!-- Sidenav -->
     <aside class="w-128 bg-gray-800 text-white h-full p-4 space-y-4">
-        <h1 class="text-4xl font-bold mb-4" id="kos-name"></h1>
-        <p><strong>Contact Person:</strong> <span id="kos-contact">Nama Orang</span></p>
-        <p><strong>Alamat Kos:</strong> <span id="kos-address">Jl. Contoh No.1</span></p>
+        @if($kos)
+        <h1 class="text-4xl font-bold mb-4" id="kos-name">{{  $kos->name }}</h1>
+        <p><strong>Owner:</strong> <span id="kos-contact">{{ $kos->pengguna->username }}</span></p>
+        <p><strong>Alamat Kos:</strong> <span id="kos-address">{{ $kos->alamat }}</span></p>
+        @endif
         
-        <p><strong>Rating:</strong> <span id="kos-rating">⭐⭐⭐⭐</span></p>
-        <p><strong>Catatan:</strong> <span id="kos-notes">Lorem ipsum dolor sit amet.</span></p>
-
+        <hr>
+        <p class="text-lg font-bold">Review Customer:</p>
         @if ($listReview->isNotEmpty())
         @foreach($listReview as $review)
         <div class="card bg-neutral shadow-lg text-white ">
@@ -68,15 +69,15 @@
 
         <!-- Room Cards -->
         @if ($listKamar->isNotEmpty())
-        <!-- Search Bar -->
+        {{-- <!-- Search Bar -->
         <div class="flex justify-between mb-6 my-6">
             <div class="form-control w-screen">
                 <div class="input-group">
                     <input type="text" placeholder="Search kamar..." class="input input-bordered w-full" />
                 </div>
             </div>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        </div> --}}
+        <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             @foreach($listKamar as $kamar)
             <div class="card bg-white shadow-lg" data-id-kos="{{ $kamar->id_kos }}">
                 <figure class="h-48 bg-gray-200 flex items-center justify-center">
@@ -114,39 +115,39 @@
 @section('library-js')
 <script>    
     // Mengambil ID kos dari sessionStorage dan menampilkannya dalam alert
-    document.addEventListener('DOMContentLoaded', function() {
-        var kosId = sessionStorage.getItem('kos_id');
+    // document.addEventListener('DOMContentLoaded', function() {
+    //     var kosId = sessionStorage.getItem('kos_id');
 
-        if (kosId) {
-            // Ambil elemen kamar yang sesuai
-            var kamarCards = document.querySelectorAll('[data-id-kos]');
-            kamarCards.forEach(function(card) {
-                if (card.dataset.idKos !== kosId) {
-                    card.style.display = 'none'; // Sembunyikan kartu kamar yang tidak sesuai
-                }
-            });
-        }
-    });
+    //     if (kosId) {
+    //         // Ambil elemen kamar yang sesuai
+    //         var kamarCards = document.querySelectorAll('[data-id-kos]');
+    //         kamarCards.forEach(function(card) {
+    //             if (card.dataset.idKos !== kosId) {
+    //                 card.style.display = 'none'; // Sembunyikan kartu kamar yang tidak sesuai
+    //             }
+    //         });
+    //     }
+    // });
 
     // Ambil kos_id dari sessionStorage
-    let kosId = sessionStorage.getItem('kos_id');
+    // let kosId = sessionStorage.getItem('kos_id');
 
-    if (kosId) {
-        // Kirimkan request ke backend (misalnya menggunakan Fetch atau Ajax)
-        fetch(`/kos/${kosId}`)
-            .then(response => response.json())
-            .then(data => {
-                // Tampilkan detail kos pada halaman
-                document.querySelector('#kos-name').innerText = data.name;
-                document.querySelector('#kos-contact').innerText = data.contact_person;
-                document.querySelector('#kos-address').innerText = data.alamat;
-                document.querySelector('#kos-rating').innerText = `⭐⭐⭐⭐`;
-                document.querySelector('#kos-notes').innerText = data.catatan;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-    }
+    // if (kosId) {
+    //     // Kirimkan request ke backend (misalnya menggunakan Fetch atau Ajax)
+    //     fetch(`/kos/${kosId}`)
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             // Tampilkan detail kos pada halaman
+    //             document.querySelector('#kos-name').innerText = data.name;
+    //             document.querySelector('#kos-contact').innerText = data.contact_person;
+    //             document.querySelector('#kos-address').innerText = data.alamat;
+    //             document.querySelector('#kos-rating').innerText = `⭐⭐⭐⭐`;
+    //             document.querySelector('#kos-notes').innerText = data.catatan;
+    //         })
+    //         .catch(error => {
+    //             console.error('Error:', error);
+    //         });
+    // }
 
     document.getElementById('logout-link').addEventListener('click', function(e) {
         e.preventDefault();
