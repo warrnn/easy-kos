@@ -8,7 +8,7 @@ use Behat\Gherkin\Node\TableNode;
 /**
  * autentikasi user
  */
-class AuthenticatonContext extends RawMinkContext implements Context
+class AuthenticationContext extends RawMinkContext implements Context
 {
     /**
      * @Given user membuka aplikasi
