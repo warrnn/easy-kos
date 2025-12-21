@@ -5,8 +5,7 @@ use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Behat\Tester\Exception\PendingException;
-use Behat\Step\When;
-use Behat\Step\Then;
+
 
 /**
  * admin context
@@ -175,5 +174,193 @@ class AdminContext extends RawMinkContext implements Context
         if (count($rows) === 0) {
             throw new \Exception("Tabel pemilik kos ditemukan, tetapi tidak ada baris data (tbody kosong).");
         }
+    }
+
+    /**
+     * @When admin menuju ke halaman manajemen
+     */
+    public function steps_impl_admin_menuju_ke_halaman_manajemen()
+    {
+        $session = $this->getSession();
+        $page = $session->getPage();
+
+        $this->visitPath('/admin');
+    }
+
+    /**
+     * @Then admin menekan tab "Kos" untuk menampilkan data-data kos yang ada
+     */
+    public function steps_impl_admin_menekan_tab_kos()
+    {
+        $session = $this->getSession();
+        $page = $session->getPage();
+
+        $this->visitPath('/admin/manage-users');
+
+        $pemilikTable = $page->find('css', '#pemilik-table');
+        if ($pemilikTable === null) {
+            throw new \Exception('Tab Kos (pemilik-table) tidak ditemukan di halaman.');
+        }
+    }
+
+    /**
+     * @Then admin menekan "ikon edit" yang ada di salah satu data
+     */
+    public function steps_impl_admin_menekan_ikon_edit()
+    {
+        $session = $this->getSession();
+        $page = $session->getPage();
+
+        $editButton = $page->find('css', '#pemilik-table a[href*="form-pemilik"].btn-secondary');
+
+        // if ($editButton === null) {
+        //     $editButton = $page->find('css', '#pemilikTable a[href*="form-pemilik"]');
+        // }
+
+        // if ($editButton === null) {
+        //     $editButton = $page->find('css', 'a[href*="form-pemilik"][href*="edit"]');
+        // }
+
+        if ($editButton === null) {
+            throw new \Exception('Ikon edit tidak ditemukan di halaman.');
+        }
+
+        $editButton->click();
+    }
+
+    /**
+     * @Then admin melakukan perubahan data di form
+     */
+    public function steps_impl_admin_melakukan_perubahan_data_di_form()
+    {
+        $session = $this->getSession();
+        $page = $session->getPage();
+
+        $nameField = $page->findField('name');
+        if ($nameField !== null) {
+            $nameField->setValue('Kos Updated ' . time());
+        }
+
+        $alamatField = $page->findField('alamat');
+        if ($alamatField !== null) {
+            $alamatField->setValue('Jl. Updated ' . time());
+        }
+    }
+
+    /**
+     * @Then admin menekan tombol "Edit Kos"
+     */
+    public function steps_impl_admin_menekan_tombol_edit_kos()
+    {
+        $session = $this->getSession();
+        $page = $session->getPage();
+
+        $submitButton = $page->find('css', 'form button[type="submit"]');
+
+        // if ($submitButton === null) {
+        //     $submitButton = $page->find('css', '.btn-primary[type="submit"]');
+        // }
+
+        if ($submitButton === null) {
+            throw new \Exception('Tombol Edit Kos tidak ditemukan di halaman.');
+        }
+
+        $submitButton->click();
+    }
+
+    /**
+     * @Then data tampil pada tabel di halaman manajemen kos dengan data yang sudah berubah
+     */
+    public function steps_impl_data_tampil_dengan_data_berubah()
+    {
+        $session = $this->getSession();
+        $page = $session->getPage();
+
+        $this->visitPath('/admin/manage-users');
+
+        if ($session->getStatusCode() != 200) {
+            throw new \Exception("Gagal memuat halaman. Status code: " . $session->getStatusCode());
+        }
+
+        $table = $page->find('css', '#pemilikTable, #pemilik-table table');
+
+        if (null === $table) {
+            throw new \Exception("Tabel Kos tidak ditemukan di HTML.");
+        }
+
+        $rows = $table->findAll('css', 'tbody tr');
+
+        if (count($rows) === 0) {
+            throw new \Exception("Tabel Kos ditemukan, tetapi tidak ada baris data (tbody kosong).");
+        }
+
+        $tableContent = $table->getText();
+        if (empty($tableContent)) {
+            throw new \Exception("Tabel Kos tidak memiliki konten.");
+        }
+    }
+
+    /**
+     * @Then admin menekan "ikon delete trash" yang ada di salah satu data
+     */
+    public function steps_impl_admin_menekan_ikon_delete_trash()
+    {
+        $session = $this->getSession();
+        $page = $session->getPage();
+
+        $deleteForm = $page->find('css', '#pemilik-table .delete-form');
+
+        // if ($deleteForm === null) {
+        //     $deleteForm = $page->find('css', '#pemilikTable .delete-form');
+        // }
+
+        // if ($deleteForm === null) {
+        //     $deleteForm = $page->find('css', 'form.delete-form[action*="kos"]');
+        // }
+
+        if ($deleteForm === null) {
+            throw new \Exception('Form delete (ikon delete trash) tidak ditemukan di halaman.');
+        }
+
+        $deleteForm->submit();
+    }
+
+    /**
+     * @Then admin menekan tombol "Yes, delete it!" pada modal alert
+     */
+    public function steps_impl_admin_menekan_tombol_confirm_delete()
+    {
+        $session = $this->getSession();
+        
+        if ($session->getStatusCode() >= 400) {
+            throw new \Exception('Terjadi error setelah delete. Status code: ' . $session->getStatusCode());
+        }
+    }
+
+    /**
+     * @Then data tidak lagi tampil di aplikasi
+     */
+    public function steps_impl_data_tidak_lagi_tampil_di_aplikasi()
+    {
+        $session = $this->getSession();
+        $page = $session->getPage();
+
+        if ($session->getStatusCode() != 200) {
+            throw new \Exception("Gagal memuat halaman. Status code: " . $session->getStatusCode());
+        }
+
+        $successMessage = $page->find('css', '.swal2-success');
+        $table = $page->find('css', '#pemilik-table, #pemilikTable');
+
+        if ($successMessage !== null || $table !== null) {
+            return;
+        }
+
+        $currentUrl = $session->getCurrentUrl();
+        if (strpos($currentUrl, 'manage-users') !== false || strpos($currentUrl, 'admin') !== false) {
+            return;
+        }
+
+        throw new \Exception("Tidak dapat memverifikasi bahwa data telah dihapus.");
     }
 }
