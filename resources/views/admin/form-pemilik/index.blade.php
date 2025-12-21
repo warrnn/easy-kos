@@ -69,7 +69,7 @@
             <input type="text" name="alamat" placeholder="Masukan alamat" class="input input-bordered w-full" required>
         </div>
         <div class="mt-4">
-            <button type="submit" class="btn btn-primary w-full">Tambah Kos</button>
+            <button id="tambah-kos" type="submit" class="btn btn-primary w-full">Tambah Kos</button>
         </div>
     </form>
     @endif

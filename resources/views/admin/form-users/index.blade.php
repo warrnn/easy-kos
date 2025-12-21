@@ -82,7 +82,7 @@
                 <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Confirm your password" class="input input-bordered w-full" required>
             </div>
             <div class="mt-4">
-                <button type="submit" class="btn btn-primary w-full">Tambah Akun</button>
+                <button id="tambah-akun" type="submit" class="btn btn-primary w-full">Tambah Akun</button>
             </div>
 
         </form>
