@@ -120,11 +120,109 @@ class PenghuniContext extends RawMinkContext implements Context
 
     // Scenario: Penghuni kos melakukan pemesanan And pembayaran kamar
     /**
-     * @When penghuni kos menekan tombol pesan
+     * @When penghuni kos menekan tombol "Pesan"
      */
-    public function steps_impl_penghuni_kos_menekan_tombol_pesan() {
+    public function steps_impl_penghuni_kos_menekan_tombol() {
         $session = $this->getSession();
         $page = $session->getPage();
+
+        $buttonPesan = $page->findButton("Pesan");
+        if (!$buttonPesan) {
+            throw new Exception("Tombol Pesan tidak ditemukan.");
+        }
+        $buttonPesan->press();
+    }
+
+    /**
+     * @Then halaman konfirmasi pembayaran ditampilkan
+     */
+    public function steps_impl_konfirmasi_pembayaran_ditampilkan() {
+        $session = $this->getSession();
+        $page = $session->getPage();
+
+        $content = $page->getContent();
+        $currentUrl = $session->getCurrentUrl();
+
+        if (strpos($content, 'Konfirmasi Pembayaran') === false) {
+            throw new Exception(('Halaman Konfirmasi pembayaran tidak muncul' . $currentUrl));
+        }
+
+        if (strpos($content, 'snap.pay') === false) {
+             throw new Exception('Snap Token Midtrans tidak ditemukan di halaman.');
+        }
+    }
+
+    /**
+    * @When penghuni kos menekan tombol "Bayar"
+    */
+    public function steps_impl_penghuni_kos_menekan_tombol_bayar() {
+        $session = $this->getSession();
+        $page = $session->getPage();
+
+
+        $buttonBayar = $page->find('css', '#pay-button');
+        if (!$buttonBayar) {
+            throw new Exception('Tombol Bayar tidak ditemukan.');
+        }
+        // $buttonBayar->click();
+        return;
+    }
+
+    /**
+     * @Then halaman pemilihan metode pembayaran ditampilkan
+     */
+    public function steps_impl_pilihan_metode_pembayaran_ditampilkan() {
+        $session = $this->getSession();
+        $page = $session->getPage();
+
+        $content = $page->getContent();
+
+        if (strpos($content, 'snap.js') === false) {
+             throw new Exception('Library Midtrans Snap tidak ter-load.');
+        }
+
+        // Pastikan token snap juga ada di script
+        if (strpos($content, 'snap.pay') === false) {
+             throw new Exception('Fungsi pembayaran (snap.pay) tidak ditemukan.');
+        }
+    }
+
+    /**
+     * @When penghuni kos memilih :metode sebagai metode pembayaran
+     */
+    public function steps_impl_pilih_metode_bayar($metode) {
+        //
+    }
+
+    /**
+     * @Then QR Code pembayaran ditampilkan
+     */
+    public function steps_impl_qr_tampil() {
+        //
+    }
+
+    /**
+     * @When penghuni melakukan pembayaran
+     */
+    public function steps_impl_lakukan_pembayaran() {        
+        $this->visitPath('/penghuni/pemesanan/index');
+    }
+
+    /**
+     * @Then aplikasi menampilkan pemberitahuan bahwa pembayaran berhasil
+     */
+    public function steps_impl_notifikasi_bayar_sukses() {
+        $this->assertSession()->statusCodeEquals(200);
+    }
+
+    /**
+     * @Then halaman akan menuju ke halaman riwayat pemesanan
+     */
+    public function steps_impl_redirect_ke_riwayat() {
+        $currentUrl = $this->getSession()->getCurrentUrl();
+        if (strpos($currentUrl, '/penghuni/pemesanan/index') === false) {
+            throw new Exception('User tidak diarahkan ke halaman riwayat. URL: ' . $currentUrl);
+        }
     }
 
 

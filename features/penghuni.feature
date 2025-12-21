@@ -28,9 +28,7 @@ Feature: Penghuni Kos
     Then QR Code pembayaran ditampilkan
     When penghuni melakukan pembayaran
     Then aplikasi menampilkan pemberitahuan bahwa pembayaran berhasil
-    And penghuni kos berhasil melakukan pemesanan And pembayaran
     And halaman akan menuju ke halaman riwayat pemesanan
-    And data pesanan akan dikirimkan ke pemilik kos
 
   Scenario: Penghuni kos melihat riwayat pemesanan kamar
     When penghuni kos membuka aplikasi

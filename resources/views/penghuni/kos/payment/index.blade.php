@@ -9,7 +9,7 @@
               <p>Anda akan memesan kamar: <strong>{{ $kamar->kos->name }} - {{ $kamar->name }}</strong></p>
               <p>Harga: Rp{{ number_format($kamar->harga, 0, ',', '.') }}</p>
               <div class="card-actions justify-end">
-                <button id="pay-button" class="btn btn-success text-white">Bayar Sekarang</button>
+                <button id="pay-button" class="btn-bayar btn btn-success text-white">Bayar Sekarang</button>
               </div>
             </div>
         </div>
