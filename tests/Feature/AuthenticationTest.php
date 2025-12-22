@@ -7,6 +7,18 @@ use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 
+// Mengakses login page
+// User dialihkan ke halaman login saat akses halaman terproteksi
+// Admin melakukan login
+// Pemilik kos melakukan login
+// Penghuni kos melakukan login
+// User gagal login karena credentials salah
+// Mengakses register page
+// Pemilik kos melakukan registrasi akun
+// Penghuni melakukan registrasi akun
+// Registrasi akun gagal jika password tidak cocok
+// User bisa melakukan logout
+
 uses(RefreshDatabase::class);
 
 test('Mengakses login page', function () {

@@ -9,6 +9,16 @@ use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 use function Pest\Laravel\delete;
 
+// admin menambahkan akun pemilik kos baru
+// admin menambahkan data kos baru
+// admin mengubah data kos yang sudah ada
+// admin menghapus data kos
+
+// admin menambahkan akun dengan password tidak cocok
+// admin menambahkan kos tanpa data lengkap
+// admin mengubah kos yang tidak ada
+// admin menghapus kos yang tidak ada
+
 uses(RefreshDatabase::class);
 
 // === test case 1: admin menambahkan akun pemilik kos baru ===

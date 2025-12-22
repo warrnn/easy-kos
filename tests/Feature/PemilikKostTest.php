@@ -10,6 +10,20 @@ use function Pest\Laravel\actingAs;
 use function Pest\Laravel\post;
 use function Pest\Laravel\get;
 
+// Pemilik kos melakukan login
+// Pemilik kos melihat daftar kos miliknya di dashboard
+// Pemilik kos melihat dashboard kosong jika belum memiliki kos
+// Pemilik kos dapat membuat kos baru
+// Pemilik kos gagal membuat kos jika form tidak valid
+// Pemilik kos melihat data pemesanan penghuni
+// Pemilik kos melihat halaman laporan dengan data miliknya
+// Pemilik kos dapat melihat halaman tambah kamar jika sudah memiliki kos
+// Pemilik kos dialihkan kembali jika belum memiliki kos saat akses tambah kamar
+// Pemilik kos dapat menyimpan data kamar baru dengan valid
+// Pemilik kos gagal menyimpan kamar jika validasi error
+// Pemilik kos dapat memperbarui status pesanan dan kamar otomatis menjadi booked
+
+
 uses(RefreshDatabase::class);
 
 test('Pemilik kos melakukan login', function () {

@@ -13,6 +13,20 @@ use Illuminate\Support\Facades\Config;
 use Mockery\MockInterface;
 use function Pest\Laravel\post;
 
+// penghuni bisa melihat daftar semua kos
+// penghuni bisa melihat detail kamar dalam kos tertentu
+// penghuni melihat 404 jika melihat kos yang tidak ada
+// pesan kamar redirect ke login jika user belum auth
+// pesan kamar redirect ke homepage jika user belum login (guest)
+// pesan kamar redirect back jika kamar tidak ditemukan
+// pesan kamar berhasil dan menghasilkan snap token midtrans
+// pesan kamar menangani error exception dari midtrans
+// penghuni bisa melihat daftar pemesanan miliknya
+// penghuni bisa membuka form review
+// penghuni bisa menambahkan review
+// tambah review gagal jika validasi error
+// 
+
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
