@@ -1,0 +1,64 @@
+﻿Feature: Autentikasi User
+
+  Scenario: User membuat akun baru And berhasil registrasi akun # features\authentication.feature:3
+    Given "user" membuka aplikasi                               # AuthenticationContext::steps_impl_buka_aplikasi()
+    And user pergi ke halaman register                          # AuthenticationContext::steps_impl_user_ke_register()
+    And user mengisi form register                              # AuthenticationContext::steps_impl_user_isi_form_register()
+    And user menekan tombol register                            # AuthenticationContext::steps_impl_user_click_register()
+    Then user berhasil registrasi akun baru                     # AuthenticationContext::steps_impl_user_berhasil_registrasi()
+    And user ter-direct ke halaman login                        # AuthenticationContext::steps_impl_user_redirect_ke_login()
+
+  Scenario: User dengan otoritas akun admin melakukan login untuk masuk ke dashboard admin # features\authentication.feature:11
+    When "admin" membuka aplikasi                                                          # AuthenticationContext::steps_impl_buka_aplikasi()
+    And "admin" mengisi form login                                                         # AuthenticationContext::steps_impl_isi_form_login()
+    And "admin" menekan tombol login                                                       # AuthenticationContext::steps_impl_click_login()
+    Then "admin" berhasil masuk ke "dashboard admin"                                       # AuthenticationContext::steps_impl_berhasil_login()
+
+  Scenario: User dengan otoritas akun pemilik kos melakukan login untuk masuk ke dashboard pemilik kos # features\authentication.feature:17
+    When "pemilik kos" membuka aplikasi                                                                # AuthenticationContext::steps_impl_buka_aplikasi()
+    And "pemilik kos" mengisi form login                                                               # AuthenticationContext::steps_impl_isi_form_login()
+    And "pemilik kos" menekan tombol login                                                             # AuthenticationContext::steps_impl_click_login()
+    Then "pemilik kos" berhasil masuk ke "dashboard pemilik kos"                                       # AuthenticationContext::steps_impl_berhasil_login()
+
+  Scenario: User dengan otoritas akun penghuni kos melakukan login untuk masuk ke halaman utama # features\authentication.feature:23
+    When "penghuni kos" membuka aplikasi                                                        # AuthenticationContext::steps_impl_buka_aplikasi()
+    And "penghuni kos" mengisi form login                                                       # AuthenticationContext::steps_impl_isi_form_login()
+    And "penghuni kos" menekan tombol login                                                     # AuthenticationContext::steps_impl_click_login()
+    Then "penghuni kos" berhasil masuk ke "halaman utama"                                       # AuthenticationContext::steps_impl_berhasil_login()
+
+  Scenario: User login dengan mengisi kredensial yang salah # features\authentication.feature:29
+    When "user" membuka aplikasi                            # AuthenticationContext::steps_impl_buka_aplikasi()
+    And "user" mengisi form login dengan kredensial salah
+    And "user" menekan tombol login                         # AuthenticationContext::steps_impl_click_login()
+    Then aplikasi menolak login dari user                   # AuthenticationContext::steps_impl_aplikasi_tolak_login()
+    And user tetap di halaman login                         # AuthenticationContext::steps_impl_user_tetap_di_login()
+
+5 scenarios (4 passed, 1 undefined)
+23 steps (19 passed, 1 undefined, 3 skipped)
+0m8.66s (16.72Mb)
+
+vendor\bin\behat :  >> <snippet_unde
+fined><snippet_keyword>default</snip
+pet_keyword> suite has undefined 
+steps. Please choose the context to 
+generate 
+snippets:</snippet_undefined>
+At line:1 char:1
++ vendor\bin\behat 
+features/authentication.feature 
+--no-colors 2>&1 | O ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSp 
+   ecified: ( >> <snippet_un...ppe  
+  t_undefined>:String) [], Remote   
+ Exception
+    + FullyQualifiedErrorId : Nativ 
+   eCommandError
+ 
+
+  [0] None
+  [1] AuthenticationContext
+  [2] PemilikContext
+  [3] PenghuniContext
+  [4] AdminContext

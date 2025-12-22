@@ -1,7 +1,7 @@
 Feature: Manajemen Admin
 
   Scenario: Admin membuat akun pemilik kos baru
-    When admin membuka aplikasi
+    When "admin" membuka aplikasi
     And admin melakukan login
     Then halaman dashboard admin ditampilkan
     When admin menekan tombol "+ Users" pada halaman dashboard admin
@@ -10,7 +10,7 @@ Feature: Manajemen Admin
     Then data akun tampil di tabel user pada halaman manajemen data user
 
   Scenario: Admin membuat data kos baru
-    When admin membuka aplikasi
+    When "admin" membuka aplikasi
     And admin melakukan login
     Then halaman dashboard admin ditampilkan
     When admin menekan tombol "+ Kos" pada halaman dashboard admin
@@ -19,7 +19,7 @@ Feature: Manajemen Admin
     Then data kos tampil di tabel kos pada halaman manajemen data kos
 
   Scenario: Admin mengubah data kos yang sudah ada
-    When admin membuka aplikasi
+    When "admin" membuka aplikasi
     And admin melakukan login
     Then halaman dashboard admin ditampilkan
     When admin menuju ke halaman manajemen
@@ -30,7 +30,7 @@ Feature: Manajemen Admin
     Then data tampil pada tabel di halaman manajemen kos dengan data yang sudah berubah
 
   Scenario: Admin menghapus data kos yang sudah ada
-    When admin membuka aplikasi
+    When "admin" membuka aplikasi
     And admin melakukan login
     Then halaman dashboard admin ditampilkan
     When admin menuju ke halaman manajemen

@@ -11,36 +11,20 @@ use Behat\Gherkin\Node\TableNode;
 class AuthenticationContext extends RawMinkContext implements Context
 {
     /**
-     * @Given user membuka aplikasi
+     * @Given /^"([^"]*)" membuka aplikasi$/
      */
-    public function steps_impl_user_buka_aplikasi()
+    public function steps_impl_buka_aplikasi($role)
     {
         $this->visitPath('/');
     }
 
-    /**
-     * @When admin membuka aplikasi
-     */
-    public function steps_impl_admin_buka_aplikasi()
-    {
-        $this->visitPath('/');
-    }
-
-    /**
-     * @When pemilik kos membuka aplikasi
-     */
-    public function steps_impl_pemilik_buka_aplikasi()
-    {
-        $this->visitPath('/');
-    }
-
-    /**
-     * @When penghuni kos membuka aplikasi
-     */
-    public function steps_impl_penghuni_buka_aplikasi()
-    {
-        $this->visitPath('/');
-    }
+    // /**
+    //  * @When user membuka aplikasi
+    //  */
+    // public function steps_impl_user_membuka_aplikasi()
+    // {
+    //     $this->visitPath('/');
+    // }
 
     /**
      * @Given user pergi ke halaman register
@@ -105,39 +89,33 @@ class AuthenticationContext extends RawMinkContext implements Context
     }
 
     /**
-     * @When admin mengisi form login
+     * @When :role mengisi form login
      */
-    public function steps_impl_admin_isi_form_login()
+    public function steps_impl_isi_form_login($role)
     {
         $session = $this->getSession();
         $page = $session->getPage();
         
-        $page->fillField('username', 'admin');
-        $page->fillField('password', 'admin123');
+        $credentials = $this->getCredentials($role);
+        $page->fillField('username', $credentials['username']);
+        $page->fillField('password', $credentials['password']);
     }
 
     /**
-     * @When pemilik kos mengisi form login
+     * helper
      */
-    public function steps_impl_pemilik_isi_form_login()
+    private function getCredentials($role)
     {
-        $session = $this->getSession();
-        $page = $session->getPage();
-        
-        $page->fillField('username', 'Pemilik');
-        $page->fillField('password', 'pemilik123');
-    }
-
-    /**
-     * @When penghuni kos mengisi form login
-     */
-    public function steps_impl_penghuni_isi_form_login()
-    {
-        $session = $this->getSession();
-        $page = $session->getPage();
-        
-        $page->fillField('username', 'Penghuni');
-        $page->fillField('password', 'penghuni123');
+        switch ($role) {
+            case 'admin':
+                return ['username' => 'admin', 'password' => 'admin123'];
+            case 'pemilik kos':
+                return ['username' => 'Pemilik', 'password' => 'pemilik123'];
+            case 'penghuni kos':
+                return ['username' => 'Penghuni', 'password' => 'penghuni123'];
+            default:
+                throw new Exception('Unknown role: ' . $role);
+        }
     }
 
     /**
@@ -153,9 +131,9 @@ class AuthenticationContext extends RawMinkContext implements Context
     }
 
     /**
-     * @When admin menekan tombol login
+     * @When :role menekan tombol login
      */
-    public function steps_impl_admin_click_login()
+    public function steps_impl_click_login($role)
     {
         $session = $this->getSession();
         $page = $session->getPage();
@@ -164,42 +142,9 @@ class AuthenticationContext extends RawMinkContext implements Context
     }
 
     /**
-     * @When pemilik kos menekan tombol login
+     * @Then :role berhasil masuk ke :dashboard
      */
-    public function steps_impl_pemilik_click_login()
-    {
-        $session = $this->getSession();
-        $page = $session->getPage();
-        
-        $page->pressButton('Login');
-    }
-
-    /**
-     * @When penghuni kos menekan tombol login
-     */
-    public function steps_impl_penghuni_click_login()
-    {
-        $session = $this->getSession();
-        $page = $session->getPage();
-        
-        $page->pressButton('Login');
-    }
-
-    /**
-     * @When user menekan tombol login
-     */
-    public function steps_impl_user_click_login()
-    {
-        $session = $this->getSession();
-        $page = $session->getPage();
-        
-        $page->pressButton('Login');
-    }
-
-    /**
-     * @Then admin berhasil masuk ke dashboard admin
-     */
-    public function steps_impl_admin_berhasil_login()
+    public function steps_impl_berhasil_login($role, $dashboard)
     {
         $session = $this->getSession();
         $page = $session->getPage();
@@ -209,53 +154,29 @@ class AuthenticationContext extends RawMinkContext implements Context
             throw new Exception('Login success message not found');
         }
         
-        $this->visitPath('/admin');
+        $dashboardPath = $this->getDashboardPath($role);
+        $this->visitPath($dashboardPath);
         $currentUrl = $session->getCurrentUrl();
         
-        if (strpos($currentUrl, '/admin') === false) {
-            throw new Exception('Admin cannot access admin dashboard. Current URL: ' . $currentUrl);
+        if (strpos($currentUrl, $dashboardPath) === false) {
+            throw new Exception($role . ' cannot access ' . $dashboard . '. Current URL: ' . $currentUrl);
         }
     }
 
     /**
-     * @Then pemilik kos berhasil masuk ke dashboard pemilik kos
+     * helper
      */
-    public function steps_impl_pemilik_berhasil_login()
+    private function getDashboardPath($role)
     {
-        $session = $this->getSession();
-        $page = $session->getPage();
-        
-        $content = $page->getContent();
-        if (strpos($content, 'Login berhasil') === false && strpos($content, 'success') === false) {
-            throw new Exception('Login success message not found');
-        }
-        
-        $this->visitPath('/pemilik_kos/index');
-        $currentUrl = $session->getCurrentUrl();
-        
-        if (strpos($currentUrl, '/pemilik_kos/index') === false) {
-            throw new Exception('Owner cannot access owner dashboard. Current URL: ' . $currentUrl);
-        }
-    }
-
-    /**
-     * @Then penghuni kos berhasil masuk ke halaman utama
-     */
-    public function steps_impl_penghuni_berhasil_login()
-    {
-        $session = $this->getSession();
-        $page = $session->getPage();
-        
-        $content = $page->getContent();
-        if (strpos($content, 'Login berhasil') === false && strpos($content, 'success') === false) {
-            throw new Exception('Login success message not found');
-        }
-        
-        $this->visitPath('/penghuni/index');
-        $currentUrl = $session->getCurrentUrl();
-        
-        if (strpos($currentUrl, '/penghuni/index') === false) {
-            throw new Exception('Tenant cannot access homepage. Current URL: ' . $currentUrl);
+        switch ($role) {
+            case 'admin':
+                return '/admin';
+            case 'pemilik kos':
+                return '/pemilik_kos/index';
+            case 'penghuni kos':
+                return '/penghuni/index';
+            default:
+                throw new Exception('Unknown role: ' . $role);
         }
     }
 

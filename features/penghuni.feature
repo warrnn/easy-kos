@@ -1,13 +1,13 @@
 Feature: Penghuni Kos
 
   Scenario: Penghuni kos melihat daftar kos yang tersedia
-    When penghuni kos membuka aplikasi
+    When "penghuni kos" membuka aplikasi
     And penghuni kos melakukan login
     Then halaman utama ditampilkan
     And data-data kos yang tersedia ditampilkan lengkap dengan informasi kos
 
   Scenario: Penghuni kos melihat daftar kamar kos yang tersedia
-    When penghuni kos membuka aplikasi
+    When "penghuni kos" membuka aplikasi
     And penghuni kos melakukan login
     Then halaman utama ditampilkan
     When penghuni kos menekan salah satu card kos
@@ -15,7 +15,7 @@ Feature: Penghuni Kos
     And data-data kamar kos yang tersedia ditampilkan sesuai dengan ketersediaan kamar-nya
 
   Scenario: Penghuni kos melakukan pemesanan And pembayaran kamar
-    When penghuni kos membuka aplikasi
+    When "penghuni kos" membuka aplikasi
     And penghuni kos melakukan login
     Then halaman utama ditampilkan
     When penghuni kos menekan salah satu card kos
@@ -31,14 +31,14 @@ Feature: Penghuni Kos
     And halaman akan menuju ke halaman riwayat pemesanan
 
   Scenario: Penghuni kos melihat riwayat pemesanan kamar
-    When penghuni kos membuka aplikasi
+    When "penghuni kos" membuka aplikasi
     And penghuni kos melakukan login
     Then halaman utama ditampilkan
     When penghuni kos menekan menu "Pemesanan" pada navigation bar
     Then halaman pemesanan menampilkan riwayat pemesanan penghuni
 
   Scenario: Penghuni kos memberikan review pada suatu kos
-    When penghuni kos membuka aplikasi
+    When "penghuni kos" membuka aplikasi
     And penghuni kos melakukan login
     Then halaman utama ditampilkan
     When penghuni kos menekan menu "Pemesanan" pada navigation bar

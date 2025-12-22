@@ -1,7 +1,7 @@
 Feature: Manajemen Pemilik Kos
 
   Scenario: Pemilik kos menambahkan data kamar baru pada kos-nya
-    When pemilik kos membuka aplikasi
+    When "pemilik kos" membuka aplikasi
     And pemilik kos melakukan login
     Then halaman dashboard pemilik kos ditampilkan
     When pemilik kos menekan tombol "Laporan"
@@ -14,7 +14,7 @@ Feature: Manajemen Pemilik Kos
     And menampilkan data kamar kos baru
 
   Scenario: Pemilik kos menerima pesanan dari penghuni kos
-    When pemilik kos membuka aplikasi
+    When "pemilik kos" membuka aplikasi
     And pemilik kos melakukan login
     Then halaman dashboard pemilik kos ditampilkan
     When pemilik kos menekan tombol "Request"
@@ -23,7 +23,7 @@ Feature: Manajemen Pemilik Kos
     Then pada tabel status berubah menjadi "Terima"
 
   Scenario: Pemilik kos melihat laporan kamar kos
-    When pemilik kos membuka aplikasi
+    When "pemilik kos" membuka aplikasi
     And pemilik kos melakukan login
     Then halaman dashboard pemilik kos ditampilkan
     When pemilik kos menekan tombol "Laporan"
